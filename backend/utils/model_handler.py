@@ -8,18 +8,34 @@ import os
 
 MODEL_PATH = 'models/deepfake_detector.pth'
 
-class DeepfakeDetector(nn.Module):
-    def __init__(self, num_classes=2):
-        super(DeepfakeDetector, self).__init__()
+class DeepfakeDetectorModel(nn.Module):
+    """Updated model with dropout for better generalization"""
+    def __init__(self, num_classes=2, dropout_rate=0.5):
+        super(DeepfakeDetectorModel, self).__init__()
         # Load pretrained ResNet50
         self.resnet = resnet50(pretrained=True)
         
-        # Modify final layer for binary classification
-        num_features = self.resnet.fc.in_features
-        self.resnet.fc = nn.Linear(num_features, num_classes)
+        # Freeze early layers
+        for param in self.resnet.layer1.parameters():
+            param.requires_grad = False
         
+        # Replace final layer with dropout + classification head
+        num_features = self.resnet.fc.in_features
+        
+        self.resnet.fc = nn.Sequential(
+            nn.Dropout(dropout_rate),
+            nn.Linear(num_features, 256),
+            nn.ReLU(),
+            nn.Dropout(dropout_rate),
+            nn.Linear(256, num_classes)
+        )
+    
     def forward(self, x):
         return self.resnet(x)
+
+# Keep old name for backward compatibility
+class DeepfakeDetector(DeepfakeDetectorModel):
+    pass
 
 def load_model(device='cpu'):
     """Load trained model or create a new one"""

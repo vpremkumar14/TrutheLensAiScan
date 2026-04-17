@@ -18,6 +18,7 @@ const ImageDetection = () => {
 
     setFile(selectedFile)
     setError(null)
+    setResult(null)
 
     // Create preview
     const reader = new FileReader()
@@ -32,7 +33,7 @@ const ImageDetection = () => {
       const data = await detectImage(selectedFile)
       setResult(data)
     } catch (err) {
-      setError(err.response?.data?.message || 'Error analyzing image. Please try again.')
+      setError(err.message || 'Error analyzing image. Please try again.')
       console.error('Error:', err)
     } finally {
       setLoading(false)
