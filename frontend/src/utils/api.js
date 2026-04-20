@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// ✅ FIX 1: Remove process.env
-const API_BASE_URL = "http://127.0.0.1:5000"
+// ✅ Configured for dynamic deployment and local fallbacks
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000"
 
 // ✅ Create axios instance
 const apiClient = axios.create({
